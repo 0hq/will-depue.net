@@ -5,6 +5,8 @@ int tick, speed;
 boolean[] keys;
 boolean side;
 float rotationAngle, elevationAngle;
+PShape floor;
+PImage floorTexture;
 
 PeasyCam cam;
 
@@ -13,8 +15,6 @@ void setup() {
   cam = new PeasyCam(this, 100);
   setupvariables();
   config();
-  
-  
 }
 
 void config() {
@@ -23,12 +23,16 @@ void config() {
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(60);
   cam.setYawRotationMode();
+  textureWrap(REPEAT);
 }
 
 void setupvariables() {
+  floorTexture = loadImage("floor.png");
   cameraPos = new PVector(0, 0, 0);
   playerPos = new PVector(0, 0, 0);
   keys = new boolean[6];
+  floor = createShape(BOX, 2000, 10, 2000);
+  floor.setTexture(floorTexture);
 }
 
 void draw() {
@@ -41,8 +45,8 @@ void draw() {
 }
 
 void printFunctions() {
-  println(cam.getRotations());
-  println(tick);
+  //println(cam.getRotations());
+  //println(tick);
 }
 
 void math() {
@@ -57,7 +61,16 @@ void render() {
   translate(playerPos.x, playerPos.y, playerPos.z);
   fill(130);
   translate(0, 100, 0);
-  box(2000, 10, 2000);
+  shape(floor);
+  fill(90);
+  translate(0, 0, 1000);
+  box(2000, 400, 10);
+  translate(0, 0, -2000);
+  box(2000, 400, 10);
+  translate(1000, 0, 1000);
+  box(10, 400, 2000);
+  translate(-2000, 0, 0);
+  box(10, 400, 2000);
   popMatrix();
 }
 
