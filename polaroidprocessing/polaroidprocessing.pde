@@ -6,7 +6,7 @@ boolean[] keys;
 boolean side;
 float rotationAngle, elevationAngle;
 PShape floor;
-PImage floorTexture;
+PImage floorTexture, wallTexture;
 
 PeasyCam cam;
 
@@ -28,9 +28,11 @@ void config() {
 
 void setupvariables() {
   floorTexture = loadImage("floor.png");
+  wallTexture = loadImage("wall.jpeg");
   cameraPos = new PVector(0, 0, 0);
   playerPos = new PVector(0, 0, 0);
   keys = new boolean[6];
+  floor = createShape(BOX, 2000, 10, 2000);
   floor = createShape(BOX, 2000, 10, 2000);
   floor.setTexture(floorTexture);
 }
