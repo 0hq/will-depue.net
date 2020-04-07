@@ -25,7 +25,10 @@ void render() {
   translate(0, 0, -400);
   box(70);
   popMatrix();
+  
+}
 
+void renderHUD() {
   if (renderHUD) {
     if (useCameraHUD) {
       cam.beginHUD();
@@ -43,12 +46,20 @@ void render() {
       popMatrix();
     }
   }
-
+  
   if (renderPhoto) set(width/2 - viewfinderSize/2, height/2 - viewfinderSize/2, viewFinder);
 }
 
 void viewfinderRayCalc() {
-  PVector finderRayLeftBottom = new PVector(viewfinderSize, viewfinderSize);
+  PVector finderRayLeftBottom = new PVector(-viewfinderSize/2, viewfinderSize/2, rectHUDDistance);
+  PVector finderRayRightBottom = new PVector(viewfinderSize/2, viewfinderSize/2, rectHUDDistance);
+  PVector finderRayLeftTop = new PVector(-viewfinderSize/2, -viewfinderSize/2, rectHUDDistance);
+  PVector finderRayRightTop = new PVector(viewfinderSize/2, -viewfinderSize/2, rectHUDDistance);
+  finderRayLeftBottom.mult(2/viewfinderSize);
+  finderRayRightBottom.mult(2/viewfinderSize);
+  finderRayLeftTop.mult(2/viewfinderSize);
+  finderRayRightTop.mult(2/viewfinderSize);
+
 }
 
 void shapeF(PShape shape, color fill, PVector location) {
@@ -74,4 +85,19 @@ void theSwitch() {
 
 PVector multVector(PVector input, float var) {
   return new PVector(var * input.x, var * input.y, var * input.z);
+}
+
+PVector x3dRotation(PVector input, float theta) {
+  PVector result = new PVector(input.x, cos(theta) * input.y -  sin(theta) * input.z, sin(theta) * input.y + cos(theta) * input.z);
+  return result;
+}
+
+PVector y3dRotation(PVector input, float theta) {
+  PVector result = new PVector(cos(theta) * input.x + sin(theta) * input.z, input.y, -sin(theta) * input.x + cos(theta) * input.z);
+  return result;
+}
+
+PVector z3dRotation(PVector input, float theta) {
+  PVector result = new PVector(cos(theta) * input.x - sin(theta) * input.y, sin(theta) * input.x + cos(theta) * input.y, input.z);
+  return result;
 }

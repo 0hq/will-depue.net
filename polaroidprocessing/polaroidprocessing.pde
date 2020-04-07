@@ -38,6 +38,7 @@ void draw() {
   math();
   tick += 1;
   render();
+  renderHUD();
   movement();
   printFunctions();
 
