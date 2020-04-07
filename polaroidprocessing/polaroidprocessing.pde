@@ -1,12 +1,26 @@
+import ch.bildspur.postfx.builder.*;
+import ch.bildspur.postfx.pass.*;
+import ch.bildspur.postfx.*;
 import peasy.*;
+import processing.io.*;
 
-PVector cameraPos, playerPos, centerPos;
-int tick, speed;
+PVector cameraPos, playerPos, centerPos, lookVector;
+PVector floorLocation = new PVector(0, 100, 0);
+PVector ceilingLocation = new PVector(0, 0, 0);
+PVector rightWall = new PVector(0, 0, 0);
+PVector leftWall = new PVector(0, 0, 0);
+PVector forwardWall = new PVector(0, 0, 0);
+PVector backWall = new PVector(0, 0, 0);
+int tick, side, speedInitial, speed, viewfinderSize, rectHUDDistance;
 boolean[] keys;
-boolean side;
-float rotationAngle, elevationAngle;
-PShape floor;
-PImage floorTexture, wallTexture;
+boolean  renderPhoto, renderHUD, useCameraHUD;
+float rotationAngle, elevationAngle, strafeReduction;
+PShape floor, wallRight, wallForward, ceiling;
+PImage floorTexture, wallTexture, viewFinder;
+
+int[] photoRegister = new int[6];
+PVector photoRegisterPosition;
+PVector lookDirection;
 
 PeasyCam cam;
 
@@ -17,13 +31,49 @@ void setup() {
   config();
 }
 
+void draw() {
+  hint(ENABLE_DEPTH_TEST);
+  background(150);
+  fill(255);
+  math();
+  tick += 1;
+  render();
+  movement();
+  printFunctions();
+
+  //hint(DISABLE_DEPTH_TEST);
+  //pg.beginDraw();
+  //pg.background(51);
+  //pg.noFill();
+  //pg.stroke(255);
+  //pg.ellipse(mouseX-120, mouseY-60, 60, 60);
+  //pg.endDraw();
+
+  //image(pg, 120, 60);
+}
+
+void math() {
+  rotationAngle = cam.getRotations()[1];
+  side = cam.getRotations()[0] < 0 ? -1 : 1;
+  lookVector.set(sin(rotationAngle), 0, side * cos(rotationAngle));
+}
+
+
 void config() {
   colorMode(HSB);
-  speed = 9;
+  speedInitial = 9;
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(60);
-  cam.setYawRotationMode();
+  //cam.setSuppressRollRotationMode();
+  //cam.setYawRotationMode();
   textureWrap(REPEAT);
+  rectMode(CENTER); 
+  hint(DISABLE_DEPTH_TEST);
+  strokeWeight(1);
+  viewfinderSize = 400;
+  strokeJoin(ROUND);
+  strafeReduction = 0.5;
+  rectHUDDistance = -100;
 }
 
 void setupvariables() {
@@ -31,101 +81,24 @@ void setupvariables() {
   wallTexture = loadImage("wall.jpeg");
   cameraPos = new PVector(0, 0, 0);
   playerPos = new PVector(0, 0, 0);
-  keys = new boolean[6];
+  keys = new boolean[9];
   floor = createShape(BOX, 2000, 10, 2000);
-  floor = createShape(BOX, 2000, 10, 2000);
+  ceiling = createShape(BOX, 2000, 10, 2000);
   floor.setTexture(floorTexture);
-}
-
-void draw() {
-  background(150);
-  tick += 1;
-  render();
-  movement();
-  printFunctions();
-  math();
+  lookVector = new PVector(0, 0, 0);
+  renderPhoto = false;
+  wallRight = createShape(BOX, 2000, 400, 10);
+  wallForward = createShape(BOX, 10, 400, 2000);
+  renderHUD = true;
+  useCameraHUD = false;
 }
 
 void printFunctions() {
-  //println(cam.getRotations());
+  println(cam.getRotations());
   //println(tick);
-}
-
-void math() {
-  rotationAngle = cam.getRotations()[1];
-  side = cam.getRotations()[0] < 0 ? true : false;
-}
-
-
-void render() {
-  cam.lookAt(cameraPos.x, cameraPos.y, cameraPos.z);
-  pushMatrix();
-  translate(playerPos.x, playerPos.y, playerPos.z);
-  fill(130);
-  translate(0, 100, 0);
-  shape(floor);
-  fill(90);
-  translate(0, 0, 1000);
-  box(2000, 400, 10);
-  translate(0, 0, -2000);
-  box(2000, 400, 10);
-  translate(1000, 0, 1000);
-  box(10, 400, 2000);
-  translate(-2000, 0, 0);
-  box(10, 400, 2000);
-  popMatrix();
-}
-
-void movement() {
-  if (keys[0]) {
-    playerPos.add(cameraRotationalMove());
-  }
-  if (keys[2]) {
-    playerPos.add(cameraRotationalMove().mult(-1));
-  }
-  //if (keys[1]) {
-  //  playerPos.add(0, 0, 5);
-  //}
-  //if (keys[3]) {
-  //  playerPos.add(0, 0, -5);
-  //}
-}
-
-PVector cameraRotationalMove() {
-  PVector result;
-  if (side) {
-    result = new PVector(speed * sin(rotationAngle), 0, -speed * cos(rotationAngle));
-  } else  result = new PVector(speed * sin(rotationAngle), 0, speed * cos(rotationAngle));
-  return result;
-}
-
-
-void keyPressed() {
-  if (key=='w')
-    keys[0]=true;
-  if (key=='a' || keyCode == LEFT)
-    keys[1]=true;
-  if (key=='s')
-    keys[2]=true;
-  if (key=='d' || keyCode == RIGHT)
-    keys[3]=true;
-  if (key=='q')
-    keys[4]=true;
-  if (key=='e')
-    keys[5]=true;
-}
-
-void keyReleased() {
-  if (key=='w')
-    keys[0]=false;
-  if (key=='a' || keyCode == LEFT)
-    keys[1]=false;
-  if (key=='s')
-    keys[2]=false;
-  if (key=='d' || keyCode == RIGHT)
-    keys[3]=false;
-  if (key=='q')
-    keys[4]=false;
-  if (key=='e')
-    keys[5]=false;
+  //printArray(LED.list());
+  //println(cam.getDistance());
+  //println(cam.getLookAt());
+  //println(playerPos);
+  //println(key);
 }
