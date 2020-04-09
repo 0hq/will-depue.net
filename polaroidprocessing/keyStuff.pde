@@ -12,16 +12,28 @@ void movement() {
     playerPos.add(-1 * cameraRotationalMove().z * strafeReduction, 0, cameraRotationalMove().x * strafeReduction); //strafing is a bit to fast here so we're slowing it down with strafeReduction, default 0.5
   }
 
-  if (keys[7]) { //z key
-    theSwitch();
+  if (keys[7] && !keys[8]) { //z key
+    if (!listenForPlace) {
+      pictures[pictureCounter].takePhoto(distaceToWalls(), cam.getRotations());
+      listenForPlace = true;
+    }
   }
   if (keys[6]) { //x key
     speed = 1;
   } else speed = speedInitial;
 
-  if (keys[8]) {
-    cam.setPitchRotationMode();
-  } else cam.setYawRotationMode();
+  //if (keys[8]) {
+  //  cam.setPitchRotationMode();
+  //} else cam.setYawRotationMode();
+
+  if (keys[8] && !keys[7]) {
+    if (listenForPlace) {
+      pictures[pictureCounter].place(cam.getRotations());
+      pictureCounter++;
+      listenForPlace = false;
+    }
+  } 
+
 
   if (keys[5]) {
     savePictureData();
@@ -32,6 +44,10 @@ void movement() {
   if (keys[4]) {
     renderPhoto = false;
     renderHUD = true;
+  }
+  if (keys[9]) {
+    setupPictures();
+    pictureCounter = 0;
   }
 }
 
@@ -54,6 +70,8 @@ void keyPressed() {
     keys[7]=true;
   if (key=='1')
     keys[8]=true;
+  if (key=='2')
+    keys[9]=true;
 }
 
 void keyReleased() {
@@ -75,4 +93,6 @@ void keyReleased() {
     keys[7]=false;
   if (key=='1')
     keys[8]=false;
+  if (key=='2')
+    keys[9]=false;
 }

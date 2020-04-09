@@ -25,7 +25,22 @@ void render() {
   translate(0, 0, -400);
   box(70);
   popMatrix();
-  
+
+  //pushMatrix();
+  //translate(0, 0, lookVector.z * -100);
+  //rect(lookVector.x * -100, 0, 10, 10);
+  //popMatrix();
+
+
+  //pushMatrix();
+  //noFill();
+  //translate(0, 95, rectHUDDistance);
+  //rotateX(PI/2);
+  ////translate(0, -95, -rectHUDDistance);
+  ////rotateX(-cam.getRotations()[0] / 100);
+  ////translate(0, 95, rectHUDDistance);
+  //rect(0, 0, 0.1825 * viewfinderSize + 1, 0.1825 * viewfinderSize + 1); //73 correlates to 400
+  //popMatrix();
 }
 
 void renderHUD() {
@@ -38,29 +53,27 @@ void renderHUD() {
     } else {
       pushMatrix();
       noFill();
+
       if (cam.getRotations()[0] >= 0) {
         rotateY(cam.getRotations()[1]);
       } else rotateY(-cam.getRotations()[1] + PI);
+
       translate(0, 0, rectHUDDistance);
       rect(0, 0, 0.1825 * viewfinderSize + 1, 0.1825 * viewfinderSize + 1); //73 correlates to 400
       popMatrix();
     }
   }
-  
+
   if (renderPhoto) set(width/2 - viewfinderSize/2, height/2 - viewfinderSize/2, viewFinder);
 }
 
-void viewfinderRayCalc() {
-  PVector finderRayLeftBottom = new PVector(-viewfinderSize/2, viewfinderSize/2, rectHUDDistance);
-  PVector finderRayRightBottom = new PVector(viewfinderSize/2, viewfinderSize/2, rectHUDDistance);
-  PVector finderRayLeftTop = new PVector(-viewfinderSize/2, -viewfinderSize/2, rectHUDDistance);
-  PVector finderRayRightTop = new PVector(viewfinderSize/2, -viewfinderSize/2, rectHUDDistance);
-  finderRayLeftBottom.mult(2/viewfinderSize);
-  finderRayRightBottom.mult(2/viewfinderSize);
-  finderRayLeftTop.mult(2/viewfinderSize);
-  finderRayRightTop.mult(2/viewfinderSize);
+//void viewfinderRayCalc() {
 
-}
+//  finderRayLeftBottom.mult(2/viewfinderSize);
+//  finderRayRightBottom.mult(2/viewfinderSize);
+//  finderRayLeftTop.mult(2/viewfinderSize);
+//  finderRayRightTop.mult(2/viewfinderSize);
+//}
 
 void shapeF(PShape shape, color fill, PVector location) {
   pushMatrix();
@@ -79,13 +92,14 @@ void savePictureData() {
   photoRegisterPosition = playerPos;
   lookDirection = new PVector(cam.getRotations()[0], cam.getRotations()[1], cam.getRotations()[2]);
 }
-
-void theSwitch() {
-}
-
 PVector multVector(PVector input, float var) {
   return new PVector(var * input.x, var * input.y, var * input.z);
 }
+
+PVector addVector(PVector input, PVector input2) {
+  return new PVector(input2.x + input.x, input2.x + input.y, input2.x + input.z);
+}
+
 
 PVector x3dRotation(PVector input, float theta) {
   PVector result = new PVector(input.x, cos(theta) * input.y -  sin(theta) * input.z, sin(theta) * input.y + cos(theta) * input.z);
@@ -100,4 +114,9 @@ PVector y3dRotation(PVector input, float theta) {
 PVector z3dRotation(PVector input, float theta) {
   PVector result = new PVector(cos(theta) * input.x - sin(theta) * input.y, sin(theta) * input.x + cos(theta) * input.y, input.z);
   return result;
+}
+
+float distaceToWalls() { //needed distance for the picture to stretch out to needed distance;
+  //return -2828.4271247462;
+  return boxDistanceFar;
 }
