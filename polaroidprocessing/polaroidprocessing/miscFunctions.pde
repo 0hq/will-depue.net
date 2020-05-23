@@ -1,79 +1,3 @@
-void render() {
-  cam.lookAt(cameraPos.x, cameraPos.y, cameraPos.z);
-  shapeF(floor, color(130), floorLocation); 
-  pushMatrix();
-  translate(playerPos.x, playerPos.y, playerPos.z);
-  fill(130);
-  translate(0, 100, 0);
-  shape(floor);
-  fill(90);
-  translate(0, 0, 1000);
-  box(2000, 400, 10);
-  translate(0, 0, -2000);
-  box(2000, 400, 10);
-  translate(1000, 0, 1000);
-  box(10, 400, 2000);
-  translate(-2000, 0, 0);
-  box(10, 400, 2000);
-  sphere(180);
-  translate(600, -40, 400);
-  sphere(60);
-  translate(0, 0, -400);
-  box(70);
-  translate(600, 0, 0);
-  box(70);
-  translate(0, 0, -400);
-  box(70);
-  popMatrix();
-
-  //pushMatrix();
-  //translate(0, 0, lookVector.z * -100);
-  //rect(lookVector.x * -100, 0, 10, 10);
-  //popMatrix();
-
-
-  //pushMatrix();
-  //noFill();
-  //translate(0, 95, rectHUDDistance);
-  //rotateX(PI/2);
-  ////translate(0, -95, -rectHUDDistance);
-  ////rotateX(-cam.getRotations()[0] / 100);
-  ////translate(0, 95, rectHUDDistance);
-  //rect(0, 0, 0.1825 * viewfinderSize + 1, 0.1825 * viewfinderSize + 1); //73 correlates to 400
-  //popMatrix();
-}
-
-void renderHUD() {
-  if (renderHUD) {
-    if (useCameraHUD) {
-      cam.beginHUD();
-      noFill();
-      rect(width/2, height/2, viewfinderSize + 1, viewfinderSize + 1);
-      cam.endHUD();
-    } else {
-      pushMatrix();
-      noFill();
-
-      if (cam.getRotations()[0] >= 0) {
-        rotateY(cam.getRotations()[1]);
-      } else rotateY(-cam.getRotations()[1] + PI);
-
-      translate(0, 0, rectHUDDistance);
-      rect(0, 0, 0.1825 * viewfinderSize + 1, 0.1825 * viewfinderSize + 1); //73 correlates to 400
-      popMatrix();
-    }
-  }
-
-  if (renderPhoto) set(width/2 - viewfinderSize/2, height/2 - viewfinderSize/2, viewFinder);
-}
-
-//void viewfinderRayCalc() {
-
-//  finderRayLeftBottom.mult(2/viewfinderSize);
-//  finderRayRightBottom.mult(2/viewfinderSize);
-//  finderRayLeftTop.mult(2/viewfinderSize);
-//  finderRayRightTop.mult(2/viewfinderSize);
-//}
 
 void shapeF(PShape shape, color fill, PVector location) {
   pushMatrix();
@@ -92,6 +16,7 @@ void savePictureData() {
   photoRegisterPosition = playerPos;
   lookDirection = new PVector(cam.getRotations()[0], cam.getRotations()[1], cam.getRotations()[2]);
 }
+
 PVector multVector(PVector input, float var) {
   return new PVector(var * input.x, var * input.y, var * input.z);
 }
@@ -100,23 +25,44 @@ PVector addVector(PVector input, PVector input2) {
   return new PVector(input2.x + input.x, input2.x + input.y, input2.x + input.z);
 }
 
-
-PVector x3dRotation(PVector input, float theta) {
-  PVector result = new PVector(input.x, cos(theta) * input.y -  sin(theta) * input.z, sin(theta) * input.y + cos(theta) * input.z);
-  return result;
-}
-
-PVector y3dRotation(PVector input, float theta) {
-  PVector result = new PVector(cos(theta) * input.x + sin(theta) * input.z, input.y, -sin(theta) * input.x + cos(theta) * input.z);
-  return result;
-}
-
-PVector z3dRotation(PVector input, float theta) {
-  PVector result = new PVector(cos(theta) * input.x - sin(theta) * input.y, sin(theta) * input.x + cos(theta) * input.y, input.z);
-  return result;
-}
-
 float distaceToWalls() { //needed distance for the picture to stretch out to needed distance;
   //return -2828.4271247462;
   return boxDistanceFar;
+}
+
+void setupPictures() { //generator for all the pictures
+  for (int i = 0; i < pictures.length; i++) {
+    pictures[i] = new Picture();
+  }
+}
+
+void drawPictures() {
+  for (int i = 0; i < pictures.length; i++) {
+    pictures[i].render(); //renders pictures
+  }
+}
+
+//void translateCalculate() {
+//  PVector result = new PVector(0,0,0);
+//  for (int i = 0; i < masterPositionsLevel0.length; i++) {
+//    result.add(masterPositionsLevel0[i]);
+//    print("new PVector(" + result.x + "," + result.y + ","  + result.z + "), " );
+//  }
+
+//}
+
+void switchPolaroids() {
+  switchPolaroidsBool = true;
+  if (availablePolaroids > 0) {
+    if (availablePolaroids >= currentPolaroid++) {
+      currentPolaroid++;
+    } else if (currentPolaroid == 3) {
+      currentPolaroid = 0;
+    }
+  }
+}
+
+float implicitLine(float x0, float y0, float x1, float y1, float x, float y) {
+  float result = ((y0 - y1) * x) + ((x1 - x0) * y) + (x0 * y1) - (x1 * y0); 
+  return result;
 }
