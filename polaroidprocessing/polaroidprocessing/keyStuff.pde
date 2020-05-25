@@ -37,6 +37,7 @@ void movement() {
   if (keys[12] && timer == 0 && playerPos.y == playerHeight && onFloor) { //space key
     playerVelocity.add(0, 8, 0);
     timer = 30;
+    println("JUMP");
   }
 
   if (keys[7] && !keys[8]) { //z key
@@ -98,8 +99,9 @@ void movement() {
           listenForPlace = true;
         }
         keyPictureTaken = true;
-        timer = 20;
+        timer = 50;
         println("Picture has been taken");
+        println("Waiting 50 ticks");
       } else { 
         if (timer == 0) {
           if (listenForPlace ) {
@@ -112,8 +114,9 @@ void movement() {
           moveABit = 0;
           pictureCounter = 0;
           keyPictureTaken = false;
-          timer = 20;
+          timer = 50;
           println("Picture has been placed");
+          println("Waiting 50 ticks");
         }
       }
     }

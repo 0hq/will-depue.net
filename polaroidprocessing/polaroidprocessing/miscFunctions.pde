@@ -1,4 +1,3 @@
-
 void shapeF(PShape shape, color fill, PVector location) {
   pushMatrix();
   fill(130);

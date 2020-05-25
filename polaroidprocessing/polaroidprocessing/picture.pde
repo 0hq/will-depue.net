@@ -12,6 +12,8 @@ class Picture {
   color[] colorList;
   PVector[] rotateList;
   int objectsUsed = 0;
+  PVector shapePositionBufferLeft = new PVector(0, 0, 0);
+  PVector shapePositionBufferRight = new PVector(0, 0, 0);
   Picture() {
     taken = false;
     placed = false;
@@ -42,18 +44,18 @@ class Picture {
     instCameraRotation = rotation;
     taken = true;
 
-    placeRotation = rotation;
-    pictureBox();
-    masterPosX = new PVector();
-    masterPosX.set(playerPos);
-
-    if (placeRotation[0] >= 0) { 
-      masterRotation = placeRotation[1];
-    } else { 
-      masterRotation = -placeRotation[1] + PI;
-    }
-
     if (level == 1) {
+      placeRotation = rotation;
+      pictureBox();
+      masterPosX = new PVector();
+      masterPosX.set(playerPos);
+
+      if (placeRotation[0] >= 0) { 
+        masterRotation = placeRotation[1];
+      } else { 
+        masterRotation = -placeRotation[1] + PI;
+      }
+
       findShapesLevel1(masterRotation, closeBottomLeft, farBottomLeft, closeBottomRight, farBottomRight, masterPosX);
     }
   }
@@ -79,6 +81,7 @@ class Picture {
       if (level == 1) {
         findShapesLevel1(masterRotation, closeBottomLeft, farBottomLeft, closeBottomRight, farBottomRight, masterPosX);
       }
+      println(shapeList);
     }
   }
 
@@ -239,7 +242,7 @@ class Picture {
 
       if (level == 0) {
         if (useShapeList) {
-          for (int g = 0; g < objectsUsed; g++) {
+          for (int g = 0; g < shapeList.length; g++) {
             pushMatrix();
             translate(shapePositionList[g].x, shapePositionList[g].y, shapePositionList[g].z);
             shapeList[g].setFill(colorList[g]);
@@ -272,26 +275,80 @@ class Picture {
   }
 
   void collisionDetection() {
-    boolean collisionDetectedLocal = false;
     if (useShapeList && objectsUsed > 0) {
-      PVector playerCollisionPosition = new PVector(-playerPos.x + playerCollisionPoint.x, playerPos.y + playerCollisionPoint.y, -playerPos.z + playerCollisionPoint.z);
       for (int g = 0; g < objectsUsed; g++) {
-        if (cubeCollision(playerCollisionPosition, new PVector(shapePositionList[g].x - 40, shapePositionList[g].y - 40, shapePositionList[g].z - 40), new PVector(shapePositionList[g].x + 40, shapePositionList[g].y + 40, shapePositionList[g].z + 40))) {
+        shapePositionBufferLeft.set(shapePositionList[g].x - 40, -shapePositionList[g].z - 40);
+        shapePositionBufferRight.set(shapePositionList[g].x + 40, -shapePositionList[g].z + 40);
+        println("Position before rotation");
+        println(shapePositionBufferLeft);
+        println(shapePositionBufferRight);
+        shapePositionBufferLeft.rotate(masterRotation);
+        shapePositionBufferRight.rotate(masterRotation);
+        println("Position before adding masterPos");
+        println(shapePositionBufferLeft);
+        println(shapePositionBufferRight);
+        shapePositionBufferLeft.add(masterPosX.x, masterPosX.z);
+        shapePositionBufferRight.add(masterPosX.x, masterPosX.z);
+        println("Rotation list");
+        println(rotateList[g]);
+        println("Recorded shape position");
+        println(shapePositionList[g]);
+        println("Master position of Camera");
+        println(masterPosX);
+        println("Position final");
+        println(shapePositionBufferLeft);
+        println(shapePositionBufferRight);
+        println("Player position");
+        println(playerPos);
+        println(playerCollisionPosition);
+        println("-");
+        println(cubeCollisionSpecial(playerCollisionPosition, new PVector(shapePositionBufferLeft.x, 0, shapePositionBufferLeft.y), new PVector(shapePositionBufferRight.x, 0, shapePositionBufferRight.y)));
+        if (cubeCollision(playerCollisionPosition, new PVector(shapePositionBufferLeft.x, 0, shapePositionBufferLeft.y), new PVector(shapePositionBufferRight.x, 0, shapePositionBufferRight.y))) {
           playerHeight = 80;
-          collisionDetectedLocal = true;
-          println("first test passed");
         }
-      }
-      if (!collisionDetectedLocal) {
-        playerHeight = 0;
       }
     }
   }
 }
 
-boolean cubeCollision(PVector point, PVector boxMin, PVector boxMax) {
-  return (point.x >= boxMin.x && point.x <= boxMax.x) && 
-    (point.z >= boxMin.z && point.z <= boxMax.z)
+boolean cubeCollisionSpecial(PVector point, PVector boxMin, PVector boxMax) {
+  PVector newX = smallestOrLargest(boxMin.x, boxMax.x);
+  PVector newY = smallestOrLargest(boxMin.y, boxMax.y);
+  println(boxMin);
+  println(boxMax);
+  println("testt");
+  println(point.x >= newX.x && point.x <= newX.y);
+  println(point.z >= newY.x && point.z <= newY.y);
+  println("testt done");
+  println(newY);
+  return (point.x >= newX.x && point.x <= newX.y) && 
+    (point.z >= newY.x && point.z <= newY.y)
     //&& (point.y >= boxMin.y && point.y <= boxMax.y)
     ;
+}
+
+boolean cubeCollision(PVector point, PVector boxMin, PVector boxMax) {
+  PVector newX = smallestOrLargest(boxMin.x, boxMax.x);
+  PVector newY = smallestOrLargest(boxMin.y, boxMax.y);
+  return (point.x >= newX.x && point.x <= newX.y) && 
+    (point.z >= newY.x && point.z <= newY.y)
+    //&& (point.y >= boxMin.y && point.y <= boxMax.y)
+    ;
+}
+
+PVector smallestOrLargest(float x1, float x2) {
+  println(x1);
+  println(x2);
+  if (x2 > x1) {
+    println("x2 > x1");
+    return new PVector(x1, x2);
+  } else {
+    if (x1 > x2) {
+      println("x1 > x2");
+      return new PVector(x2, x1);
+    } else {
+      println("all else failed");
+      return new PVector(0, 0);
+    }
+  }
 }

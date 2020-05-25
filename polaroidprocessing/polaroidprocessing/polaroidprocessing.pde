@@ -71,15 +71,19 @@ void draw() {
   math();
   tick += 1;
   movement();
-  physics();
+  
   render();
   drawPictures();
   
-  printFunctions();
   renderHUD();
   if (timer > 0) { 
     timer -= 1;
+    if (timer == 1) {
+      println("Timer done, action ready");
+    }
   }
+  physics();
+  printFunctions();
 }
 
 void levelSetup() {
@@ -221,7 +225,6 @@ void setupvariables() {
   ViewfinderDisplacement = 37;
   boxDistanceFar = -2000;
   boxDistanceClose = -250;  
-  level = 0;
   for (int i = 0; i < 9; i++) {
     String filename = "photoStorage" + nf(i+1, 4) + ".png";
     photoStorage[i] = loadImage(filename);
@@ -234,6 +237,7 @@ void printFunctions() {
   //println(cam.getRotations());
   //println("playerpos");
   //println(playerPos);
+  //println(playerHeight);
   //println("doorpos");
   //println(doorPositionLevel0);
   //println(tick);
